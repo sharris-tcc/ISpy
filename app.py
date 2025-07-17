@@ -60,7 +60,9 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-color: #353434 ;
+        /*background-color: #353434 ;*/
+        background-color: #ffffff;
+
     }
     </style>
     """,
@@ -108,16 +110,16 @@ st.markdown("""
 # Create buttons with st.button
 
 # Streamlit UI
-st.title(f":violet[SnapAI: Smart Image Detection]")
+st.title(f":gray[SnapAI: Smart Image Detection]")
 #st.subheader("Add Your Name Here")
-st.write(f"### :violet[Upload an image and let the model predict the class.]")
+st.write(f"### :gray[Upload an image and let the model predict the class.]")
 
 # File uploader:blue
-uploaded_file = st.file_uploader(f"### :violet[Upload a zip...]", type=[".zip"])
+uploaded_file = st.file_uploader(f"### :gray[Upload a zip...]", type=[".zip"])
 class_names = []
 
 # Create Buttons
-col1, col2, col3 = st.columns([1,1,1])
+col1, col2, col3, col4 = st.columns([1,1,1,1])
 
 with col1:
     button1 = st.button('Build Model')
@@ -125,6 +127,8 @@ with col2:
     button2 = st.button('Test Images')
 with col3:
     button3 = st.button('New Images')
+with col4:
+    button4 = st.button('Delete Data')
 
 # Get class names from your training data (same order as before)
 if button1:
@@ -134,7 +138,7 @@ if button1:
         with st.spinner("### Processing..."):
             progress = st.progress(0)
 
-        st.info(f"### :violet[Building Your Model.....Please Wait]")
+        st.info(f"### :gray[Building Your Model.....Please Wait]")
         # Path to your dataset directory
         for i in range(5):
             progress.progress(i + 1)
@@ -235,9 +239,6 @@ if button1:
             progress.progress(i + 76)
         st.success("All Done!")
 
-    else:
-        st.write(f"### :violet[Click Here to Build Your Model]")
-
 if button2:
     testImageDir = 'test_images/'
     dataDir = 'data'
@@ -272,8 +273,8 @@ if not st.session_state.modal_open and st.session_state.get('modal_was_open', Fa
     predicted_class = class_names[np.argmax(score)]
     confidence = 100 * np.max(score)
 
-    st.write(f"### :violet[**Prediction:**] :violet[{predicted_class}]")
-    st.write(f"### :violet[**Confidence:**] :violet[{confidence:.2f}%]")
+    st.write(f"### :gray[**Prediction:**] :gray[{predicted_class}]")
+    st.write(f"### :gray[**Confidence:**] :gray[{confidence:.2f}%]")
 
 if button3:
     imageCounts = []
@@ -331,6 +332,36 @@ if button3:
                 if allImagesLoaded:
                     break
         st.success("Images Reset")
+        
+if button4:
+    testImageDir = 'test_images/'
+    dataDir = 'data'
+    zipDir = 'zipFiles'
+    if os.path.exists("model.h5"):
+        os.remove("model.h5")
+        st.success('Model Deleted')
+    if os.path.isdir(dataDir):
+        for dir in os.listdir(dataDir):
+            dirPath = dataDir + '/' + str(dir)
+            for img in os.listdir(dirPath):
+                imgPath = dirPath + '/' + str(img)
+                os.remove(imgPath)
+            os.rmdir(dirPath)
+        os.rmdir(dataDir)
+        st.success('Data Deleted')
+    if os.path.isdir(testImageDir):
+        for img in os.listdir(testImageDir):
+            imgPath = testImageDir + '/' + str(img)
+            os.remove(imgPath)
+        os.rmdir(testImageDir)
+        st.success('Test Data Deleted')
+    if os.path.isdir(zipDir):
+        for zipFile in os.listdir(zipDir):
+            zipPath = zipDir + '/' + str(zipFile)
+            os.remove(zipPath)
+        os.rmdir(zipDir)
+        st.success('ZIP Files Deleted')
+    st.success('Data Delete Complete')
 
 data_dir = 'data/'
 zip_dir = 'zipFiles/'
